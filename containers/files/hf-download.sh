@@ -9,13 +9,36 @@ if [ ! -f "$HF_MODELS_INI" ]; then
     exit 1
 fi
 
-# Extract values labeled 'repo' and download each
-grep "repo =" "$HF_MODELS_INI" | awk -F'=' '{print $2}' | sed 's/ //g' | while read -r repo_id;do grep "model =" /root/.config/llama.cpp/models.ini | awk -F'=' '{print $2}' | sed 's/ //g' | while read -r model_id; do
-    echo "-----------------------------------"
-    echo "Starting download for: $repo_id $model_id"
-    
-    # Download the model to a local directory named after the repo ID
-    #hf download "$repo_id" --local-dir "./$(basename "$repo_id")"
-    hf download "$repo_id" "$model_id"
-done
+# Initialize temporary variables
+repo_id=""
+model_id=""
 
+while read -r line || [[ -n "$line" ]]; do
+    # Trim whitespace
+    line=$(echo "$line" | xargs)
+
+    case "$line" in
+        ";repo ="*)
+            # Extract everything after the '=' and trim whitespace
+            repo_id="${line#*=}"
+            repo_id=$(echo "$repo_id" | xargs)
+            ;;
+        "model ="*)
+            # Extract everything after the '=' and trim whitespace
+            model_id="${line#*=}"
+            model_id=$(echo "$model_id" | xargs)
+            ;;
+    esac
+
+    if [[ -n "$repo_id" && -n "$model_id" ]]; then
+        echo "──────────────────────────────────────────"
+        echo "Target Repo:  $repo_id"
+        echo "Target Model: $model_id"
+        
+        hf download "$repo_id" "$model_id"
+        
+        # Reset variables
+        repo_id=""
+        model_id=""
+    fi
+done < "$HF_MODELS_INI"
