@@ -1,0 +1,19 @@
+[Unit]
+Description=Llama ROCm Server
+After=network-online.target
+
+[Container]
+ContainerName=llama-rocm-server
+Image=docker.io/kyuz0/amd-strix-halo-toolboxes:rocm-7.2
+AddDevice=/dev/dri
+AddDevice=/dev/kfd
+GroupAdd=video
+GroupAdd=render
+SeccompProfile=unconfined
+Network=host
+Volume=/home/nburr/.cache/llama.cpp/:/root/.cache/llama.cpp/:Z
+Exec=llama-server -hf unsloth/Qwen3-Coder-Next-GGUF:UD-Q4_K_M --log-timestamps --host 0.0.0.0 --port 8080 --no-mmap -fit off -c 8192 -ngl 999 -fa 1
+#Exec=llama-server -hf unsloth/Qwen3-VL-30B-A3B-Thinking-GGUF:UD-Q4_K_XL --log-timestamps --host 0.0.0.0 --port 8080 --no-mmap -fit off -c 8192 -ngl 999 -fa 1
+
+[Install]
+WantedBy=default.target
