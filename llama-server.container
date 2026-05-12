@@ -3,8 +3,8 @@ Description=Llama ROCm Server
 After=network-online.target
 
 [Container]
-ContainerName=llama-rocm-server
-Image=localhost/llama-server:server
+ContainerName=llama-server
+Image=localhost/llama.cpp:latest
 AddDevice=/dev/dri
 AddDevice=/dev/kfd
 GroupAdd=video
@@ -12,7 +12,7 @@ GroupAdd=render
 SeccompProfile=unconfined
 Network=host
 Volume=/home/nburr/.cache/huggingface/hub/:/root/.cache/huggingface/hub/:Z 
-Eeec=llama-server -hf unsloth/Qwen3-Coder-Next-GGUF:UD-Q4_K_M --log-timestamps --no-mmap -fit off --host 0.0.0.0 --port 8080 -c 8192 -ngl 999 -fa 1
+Eeec=llama-server -hf unsloth/Qwen3-Coder-Next-GGUF:UD-Q4_K_M --log-timestamps --no-mmap -fit off --host 0.0.0.0 --port 8080 -c  -ngl 999 -fa 1
 
 [Install]
 WantedBy=default.target
