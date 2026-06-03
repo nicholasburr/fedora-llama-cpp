@@ -1,44 +1,52 @@
 #!/bin/bash
 
 # Configuration file name
-HF_MODELS_INI="/root/.config/llama.cpp/models.ini"
+HF_MODELS_YAML="/root/.config/llama.cpp/models.yaml"
 
-# Check if file exists
-if [ ! -f "$HF_MODELS_INI" ]; then
-    echo "Error: $HF_MODELS_INI not found."
+# 1. Force unbuffered output so logs stream instantly
+export PYTHONUNBUFFERED=1
+
+# (Notice: HF_HUB_DISABLE_PROGRESS_BARS has been removed)
+
+log() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') | INFO  | $1"
+}
+
+log_error() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') | ERROR | $1" >&2
+}
+
+log "Starting model synchronization script."
+
+if [ ! -f "$HF_MODELS_YAML" ]; then
+    log_error "$HF_MODELS_YAML not found. Exiting."
     exit 1
 fi
 
-# Initialize temporary variables
-repo_id=""
-model_id=""
+total_models=$(yq '.llms | length' "$HF_MODELS_YAML")
+current_model=0
 
-while read -r line || [[ -n "$line" ]]; do
-    # Trim whitespace
-    line=$(echo "$line" | xargs)
+log "Found $total_models models to process."
+log "──────────────────────────────────────────"
 
-    case "$line" in
-        ";repo ="*)
-            # Extract everything after the '=' and trim whitespace
-            repo_id="${line#*=}"
-            repo_id=$(echo "$repo_id" | xargs)
-            ;;
-        "model ="*)
-            # Extract everything after the '=' and trim whitespace
-            model_id="${line#*=}"
-            model_id=$(echo "$model_id" | xargs)
-            ;;
-    esac
-
-    if [[ -n "$repo_id" && -n "$model_id" ]]; then
-        echo "──────────────────────────────────────────"
-        echo "Target Repo:  $repo_id"
-        echo "Target Model: $model_id"
+yq '.llms[] | [.repo, .model] | @tsv' "$HF_MODELS_YAML" | while IFS=$'\t' read -r repo_id model_id; do
+    
+    if [[ -n "$repo_id" && "$repo_id" != "null" && -n "$model_id" && "$model_id" != "null" ]]; then
+        ((current_model++))
         
-        hf download "$repo_id" "$model_id"
+        log "Progress: [$current_model/$total_models]"
+        log "Downloading: $model_id from $repo_id"
+
+        # The Hugging Face progress bar will now print to standard output
+        if hf download "$repo_id" "$model_id"; then
+            log "Successfully downloaded $model_id"
+        else
+            log_error "Failed to download $model_id"
+        fi
         
-        # Reset variables
-        repo_id=""
-        model_id=""
+        log "──────────────────────────────────────────"
     fi
-done < "$HF_MODELS_INI"
+
+done
+
+log "Model synchronization complete."

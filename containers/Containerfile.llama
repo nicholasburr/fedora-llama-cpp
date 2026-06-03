@@ -1,11 +1,12 @@
 # Global Arguments
-ARG ROCM_VERSION=7.2.1
+ARG FEDORA_VERSION=44
+ARG ROCM_VERSION=7.2.4
 ARG REPO=https://github.com/ggml-org/llama.cpp.git
 ARG BRANCH=master
 ARG GPU_TARGET=gfx1151
 
 # --- BUILDER STAGE ---
-FROM registry.fedoraproject.org/fedora:43 AS builder
+FROM registry.fedoraproject.org/fedora:${FEDORA_VERSION} AS builder
 ARG ROCM_VERSION
 ARG REPO
 ARG BRANCH
@@ -73,7 +74,7 @@ ldconfig
 EOF
  
 # --- RUNTIME STAGE ---
-FROM registry.fedoraproject.org/fedora-minimal:43
+FROM registry.fedoraproject.org/fedora-minimal:${FEDORA_VERSION}
 ARG ROCM_VERSION
 
 # Setup ROCm Repository

@@ -1,5 +1,5 @@
 FROM registry.fedoraproject.org/fedora-toolbox:44 
-RUN dnf --assumeyes install pip yq
+RUN dnf --assumeyes install pip
 RUN pip install huggingface_hub
 COPY files/hf-download.sh /usr/local/bin/
 CMD ["/usr/local/bin/hf-download.sh"]
