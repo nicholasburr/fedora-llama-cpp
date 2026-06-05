@@ -1,0 +1,4 @@
+FROM registry.fedoraproject.org/fedora-toolbox:44 
+RUN dnf --assumeyes install pip && dnf clean all && rm -rf /var/cache/dnf/*
+COPY files/llama-proxy.py /usr/local/bin/
+CMD ["/usr/local/bin/llama-proxy.py"]

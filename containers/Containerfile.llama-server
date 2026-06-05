@@ -115,5 +115,5 @@ ENV PATH="/usr/local/bin:$PATH" \
     GGML_HIP_UMA=1 \
     HIP_VISIBLE_DEVICES=0
 
-CMD ["llama-server"]
+ENTRYPOINT ["/usr/local/bin/llama-server"]
 

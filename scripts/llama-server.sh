@@ -1,5 +1,6 @@
 #!/bin/bash
 podman run --replace -itd --name llama-server \
+  --network=llama-network \
   --device=/dev/dri \
   --device=/dev/kfd \
   --group-add=video \
@@ -11,7 +12,6 @@ podman run --replace -itd --name llama-server \
   --secret=huggingface-token,type=env,target=HF_TOKEN \
   --volume=/home/nburr/.cache/huggingface/hub/:/root/.cache/huggingface/hub/:Z \
   localhost/llama-server:rocm-7.2.4 \
-    llama-server \
       --models-dir /root/.cache/huggingface/hub/ \
       --log-timestamps \
       --threads 8 \
@@ -25,10 +25,13 @@ podman run --replace -itd --name llama-server \
       --parallel 2 \
       --cont-batching \
       --webui-mcp-proxy \
+      --reasoning on \
+      --reasoning-format auto \
+      --chat-template-kwargs "{\"enable_thinking\": true}" \
       --jinja
 #      --spec-type draft-mtp \
-#ghcr.io/ggml-org/llama.cpp:server-rocm
 #      --spec-draft-n-max 2 \
+#  ghcr.io/ggml-org/llama.cpp:server-rocm \
 #      -np 1
 #--models-preset /root/.config/llama.cpp/models.ini
 #--volume=/home/nburr/.config/llama.cpp/:/root/.config/llama.cpp/:Z \
