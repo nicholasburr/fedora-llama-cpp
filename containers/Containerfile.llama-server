@@ -96,8 +96,10 @@ RUN microdnf -y install bash ca-certificates libstdc++ libgomp procps-ng && \
 
 # Copy artifacts
 COPY --from=builder /usr/local/ /usr/local/
-COPY --from=builder /opt/llama.cpp/build/bin/rpc-server /usr/local/bin/
+#COPY --from=builder /opt/llama.cpp/build/bin/rpc-server /usr/local/bin/
 COPY --from=builder /usr/lib64/ /usr/lib64/
+COPY --from=builder /opt/llama.cpp/build/bin/llama  /usr/local/bin/
+COPY --from=builder /opt/llama.cpp/build/bin/llama-server /usr/local/bin/
 
 # Linker Configuration
 RUN <<EOF
@@ -115,5 +117,6 @@ ENV PATH="/usr/local/bin:$PATH" \
     GGML_HIP_UMA=1 \
     HIP_VISIBLE_DEVICES=0
 
-ENTRYPOINT ["/usr/local/bin/llama-server"]
+HEALTHCHECK CMD [ "curl", "-f", "http://localhost:8080/health" ]
 
+ENTRYPOINT ["/usr/local/bin/llama-server"]

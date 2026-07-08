@@ -27,7 +27,6 @@ podman run --replace -itd --name llama-server \
       --webui-mcp-proxy \
       --reasoning on \
       --reasoning-format auto \
-      --chat-template-kwargs "{\"enable_thinking\": true}" \
       --jinja
 #      --spec-type draft-mtp \
 #      --spec-draft-n-max 2 \
