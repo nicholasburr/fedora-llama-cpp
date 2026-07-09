@@ -1,0 +1,18 @@
+# Environment configuration
+.env
+.env.local
+
+# Local configuration overrides
+config.local.sh
+
+# Logs
+*.log
+logs/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Temporary files
+*.tmp
+*.temp
