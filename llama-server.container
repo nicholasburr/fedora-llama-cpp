@@ -11,8 +11,9 @@ GroupAdd=video
 GroupAdd=render
 SeccompProfile=unconfined
 Network=host
-Volume=/home/nburr/.cache/huggingface/hub/:/root/.cache/huggingface/hub/:Z 
-Eeec=llama-server -hf unsloth/Qwen3-Coder-Next-GGUF:UD-Q4_K_M --log-timestamps --no-mmap -fit off --host 0.0.0.0 --port 8080 -c  -ngl 999 -fa 1
+# Note: Set MODEL_CACHE_DIR in .env before using this file
+Volume=${MODEL_CACHE_DIR}:/root/.cache/huggingface/hub/:Z
+Exec=llama-server -hf unsloth/Qwen3-Coder-Next-GGUF:UD-Q4_K_M --log-timestamps --no-mmap -fit off --host 0.0.0.0 --port 8080 -c  -ngl 999 -fa 1
 
 [Install]
 WantedBy=default.target

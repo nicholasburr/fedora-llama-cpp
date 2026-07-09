@@ -1,4 +1,8 @@
 #!/bin/bash
+# Source configuration
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/config.sh"
+
 podman run --replace -itd --name llama-server \
   --network=llama-network \
   --device=/dev/dri \
@@ -10,8 +14,8 @@ podman run --replace -itd --name llama-server \
   --restart=unless-stopped \
   --security-opt=seccomp=unconfined \
   --secret=huggingface-token,type=env,target=HF_TOKEN \
-  --volume=/home/nburr/.cache/huggingface/hub/:/root/.cache/huggingface/hub/:Z \
-  localhost/llama-server:rocm-7.2.4 \
+  --volume="${MODEL_CACHE_DIR}:/root/.cache/huggingface/hub/:Z" \
+  "${CONTAINER_REGISTRY}/llama-server:rocm-7.2.4" \
       --models-dir /root/.cache/huggingface/hub/ \
       --log-timestamps \
       --threads 8 \

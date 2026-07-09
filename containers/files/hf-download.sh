@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Configuration file name
-HF_MODELS_YAML="/root/.config/llama.cpp/models.yaml"
+HF_MODELS_YAML="${HF_CONFIG_PATH:-/root/.config/llama.cpp/models.yaml}"
 
 # 1. Force unbuffered output so logs stream instantly
 export PYTHONUNBUFFERED=1
