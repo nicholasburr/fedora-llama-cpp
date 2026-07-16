@@ -112,7 +112,7 @@ ldconfig
 EOF
 
 # Environment for Strix Halo (gfx1151)
-ENV PATH="/usr/local/bin:/opt/${ROCM_VERSION}/bin:$PATH" \
+ENV PATH="/usr/local/bin:/opt/rocm-${ROCM_VERSION}/bin:$PATH" \
     LD_LIBRARY_PATH="/usr/lib64/rocprofiler-systems:/usr/lib64:/usr/local/lib64:$LD_LIBRARY_PATH" \
     GGML_HIP_UMA=1 \
     HIP_VISIBLE_DEVICES=0
