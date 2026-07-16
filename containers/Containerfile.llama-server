@@ -96,7 +96,7 @@ RUN microdnf -y install bash ca-certificates libstdc++ libgomp procps-ng && \
 
 # Copy artifacts
 COPY --from=builder /usr/local/ /usr/local/
-#COPY --from=builder /opt/llama.cpp/build/bin/rpc-server /usr/local/bin/
+COPY --from=builder /usr/share/libdrm/amdgpu.ids /usr/share/libdrm/amdgpu.ids
 COPY --from=builder /usr/lib64/ /usr/lib64/
 COPY --from=builder /opt/llama.cpp/build/bin/llama  /usr/local/bin/
 COPY --from=builder /opt/llama.cpp/build/bin/llama-server /usr/local/bin/
