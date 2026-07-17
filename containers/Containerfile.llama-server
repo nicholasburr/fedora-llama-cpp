@@ -47,17 +47,21 @@ RUN git clone -b ${BRANCH} --single-branch --recursive ${REPO} . && \
 
 # Building llama.cpp
 RUN cmake -S . -B build -G Ninja \
-    -DGGML_HIP=1 \
-    -DCMAKE_HIP_FLAGS="--rocm-path=/opt/rocm -mllvm --amdgpu-unroll-threshold-local=600" \
-    -DAMDGPU_TARGETS=${GPU_TARGET} \
+#    -DAMDGPU_TARGETS=${GPU_TARGET} \
+    -DCMAKE_HIP_ARCHITECTURES=${GPU_TARGET} \
+#    -DCMAKE_HIP_FLAGS="--rocm-path=/opt/rocm -mllvm --amdgpu-unroll-threshold-local=600" \
     -DCMAKE_BUILD_TYPE=Release \
-    -DLLAMA_BUILD_TESTS=OFF \ 
+    -DGGML_BUILD_TESTS=OFF \
+#    -DGGML_CUDA_ENABLE_UNIFIED_MEMORY=1 \
+    -DGGML_HIP=1 \
     -DGGML_RPC=1 \
-    -DLLAMA_HIP_UMA=1 \
-    -DGGML_CUDA_ENABLE_UNIFIED_MEMORY=1 \
-    -DROCM_PATH=/opt/rocm \
     -DHIP_PATH=/opt/rocm \
     -DHIP_PLATFORM=amd \
+    -DLLAMA_BUILD_TESTS=OFF \ 
+    -DLLAMA_BUILD_SERVER=ON \
+    -DLLAMA_BUILD_EXAMPLES=ON \
+    -DLLAMA_HIP_UMA=1 \
+    -DROCM_PATH=/opt/rocm \
     && cmake --build build --config Release -- -j$(nproc) \
     && cmake --install build --config Release
 
