@@ -1,0 +1,47 @@
+# Global Arguments
+ARG FEDORA_VERSION=44
+ARG LEMONADE_VERSION=11.5.0
+
+FROM registry.fedoraproject.org/fedora:${FEDORA_VERSION}
+
+ARG LEMONADE_VERSION
+ARG FEDORA_VERSION
+
+# Run as an unprivileged user; lemond never needs root at runtime.
+RUN useradd -r -u 10001 -s /usr/sbin/nologin lemonade
+
+# The application directory doubles as the user's HOME so the HuggingFace and
+# lemonade caches (both derived from $HOME) resolve to writable, owned paths.
+WORKDIR /opt/lemonade
+ENV HOME=/opt/lemonade
+
+# Provide a private runtime directory so lemond can use get_runtime_dir()
+RUN mkdir -p /run/lemonade && chmod 700 /run/lemonade
+ENV XDG_RUNTIME_DIR=/run/lemonade
+
+# Create cache directories and hand the whole tree to the unprivileged user.
+RUN mkdir -p /opt/lemonade/llama/cpu \
+    /opt/lemonade/llama/vulkan \
+    /opt/lemonade/.cache/huggingface \
+    /opt/lemonade/.cache/lemonade && \
+    chown -R lemonade:lemonade /opt/lemonade /run/lemonade
+
+ADD https://github.com/lemonade-sdk/lemonade/releases/download/v${LEMONADE_VERSION}/lemonade-server-${LEMONADE_VERSION}-fc${FEDORA_VERSION}.x86_64.rpm .
+
+# Install runtime lemonade-server from .rpm
+RUN dnf --assumeyes --nodocs --setopt=install_weak_deps=False \
+    install \
+    lemonade-server-11.5.0-fc44.x86_64.rpm \
+    && dnf clean all \
+    && rm -rf /var/cache/dnf/*
+
+# Expose the lemond/lemonade binaries on PATH
+ENV PATH="/opt/bin/:${PATH}"
+
+USER lemonade
+
+# Expose default port
+EXPOSE 13305
+
+# Default command: start server in headless mode.
+CMD ["/opt/bin/lemond", "--host", "0.0.0.0"]
